@@ -4,16 +4,19 @@ from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
+from fastapi import Request, Query
+
 @app.post("/webhook")
-def webhook_handler(request: dict):
-    return JSONResponse(content=request, status_code=200)
+async def webhook_post_handler(request: Request):
+    data = await request.json()
+    return JSONResponse(content=data, status_code=200)
 
 @app.get("/webhook")
-def webhook_handler(hub):
-    mode = hub.mode
-    token = hub.verify_token
-    challenge = hub.challenge
-
+def webhook_get_handler(
+    mode: str = Query(None, alias="hub.mode"),
+    token: str = Query(None, alias="hub.verify_token"),
+    challenge: str = Query(None, alias="hub.challenge")
+):
     if mode == 'subscribe' and os.getenv('VERIFY_TOKEN') == token:
         return JSONResponse(content=challenge, status_code=200)
     else:
