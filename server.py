@@ -13,11 +13,10 @@ async def webhook_post_handler(request: Request):
 
 @app.get("/webhook")
 def webhook_get_handler(
-    mode: str = Query(None, alias="hub.mode"),
     token: str = Query(None, alias="hub.verify_token"),
     challenge: str = Query(None, alias="hub.challenge")
 ):
-    if mode == 'subscribe' and os.getenv('VERIFY_TOKEN') == token:
+    if os.getenv('VERIFY_TOKEN') == token:
         return JSONResponse(content=challenge, status_code=200)
     else:
         return JSONResponse(content="Verification failed", status_code=403)
